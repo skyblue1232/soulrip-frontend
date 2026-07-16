@@ -65,7 +65,7 @@ async function likePost() {
     const result = await api.likePost(post.value.id, clientId)
 
     liked.value = result.liked
-    post.value.likes = result.likes_count
+    post.value.likes = result.likesCount
   } catch (err) {
     error.value = err instanceof Error ? err.message : '좋아요 처리에 실패했습니다.'
   }

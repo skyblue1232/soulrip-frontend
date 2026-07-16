@@ -99,8 +99,8 @@ export interface Comment {
   post_id: number
   content: string
   nickname: string
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 // 챗봇
@@ -133,7 +133,7 @@ export interface PaginationMeta {
 
 export interface LikeResponse {
   liked: boolean
-  likes_count: number
+  likesCount: number
 }
 
 // 오늘의 AI 인사이트
