@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Utensils, NotebookPen, UsersRound, MessageCircle } from 'lucide-vue-next'
+import {
+  Eye,
+  Heart,
+  MessageCircle,
+  MessageSquare,
+  NotebookPen,
+  UserRound,
+  UsersRound,
+  Utensils,
+} from 'lucide-vue-next'
 import { api } from '@/services/api'
 import type { CommunityPost } from '@/types'
 
@@ -123,24 +132,52 @@ onMounted(loadPost)
         <h1>{{ post.title }}</h1>
 
         <div class="meta">
-          <span>
-            <UserRound :size="14" />
-            {{ post.nickname }}
+          <span class="meta-item">
+            <UserRound :size="15" />
+
+            <span class="meta-label">
+              작성자
+            </span>
+
+            <strong>
+              {{ post.nickname }}
+            </strong>
           </span>
 
-          <span>
-            <Eye :size="14" />
-            {{ post.views }}
+          <span class="meta-item">
+            <Eye :size="15" />
+
+            <span class="meta-label">
+              조회
+            </span>
+
+            <strong>
+              {{ post.views }}
+            </strong>
           </span>
 
-          <span>
-            <Heart :size="14" />
-            {{ post.likes }}
+          <span class="meta-item">
+            <Heart :size="15" />
+
+            <span class="meta-label">
+              좋아요
+            </span>
+
+            <strong>
+              {{ post.likes }}
+            </strong>
           </span>
 
-          <span>
-            <MessageSquare :size="14" />
-            {{ post.commentCount }}
+          <span class="meta-item">
+            <MessageSquare :size="15" />
+
+            <span class="meta-label">
+              댓글
+            </span>
+
+            <strong>
+              {{ post.commentCount }}
+            </strong>
           </span>
         </div>
 
@@ -155,9 +192,22 @@ onMounted(loadPost)
         </div>
 
         <div class="actions">
-          <button class="btn btn-outline btn-small" :disabled="liked" @click="likePost">
-            <Heart :size="15" :fill="liked ? 'currentColor' : 'none'" />
+          <button
+            class="btn btn-outline btn-small like-button"
+            :class="{ liked }"
+            :disabled="liked"
+            @click="likePost"
+          >
+            <Heart
+              :size="15"
+              :fill="liked ? 'currentColor' : 'none'"
+            />
+
             {{ liked ? '좋아요 완료' : '좋아요' }}
+
+            <strong>
+              {{ post.likes }}
+            </strong>
           </button>
 
           <div>
@@ -261,20 +311,32 @@ h1 {
   border-bottom: 1px solid var(--border);
 }
 
-.meta span {
+.meta-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 12px;
+  padding: 9px 13px;
+  border: 1px solid #e7ebf3;
   border-radius: 999px;
   color: #667085;
-  background: #f7f8fc;
+  background: #f8f9fc;
   font-size: 13px;
-  font-weight: 700;
 }
 
-.meta svg {
+.meta-item svg {
+  flex-shrink: 0;
   color: var(--primary);
+}
+
+.meta-label {
+  color: #667085;
+  font-weight: 600;
+}
+
+.meta-item strong {
+  color: #344054;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .content {
@@ -385,6 +447,25 @@ h1 {
 
 button svg {
   flex-shrink: 0;
+}
+
+.like-button strong {
+  min-width: 20px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(65, 104, 247, 0.1);
+  font-size: 12px;
+  text-align: center;
+}
+
+.like-button.liked {
+  color: #e5484d;
+  border-color: #fecaca;
+  background: #fff1f2;
+}
+
+.like-button.liked strong {
+  background: rgba(229, 72, 77, 0.1);
 }
 
 @media (max-width: 700px) {
