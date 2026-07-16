@@ -176,11 +176,18 @@ async function submit() {
           </div>
 
           <div class="form-group">
-            <label class="form-label">제목</label>
+            <label class="form-label" for="post-title">
+              제목
+            </label>
+
             <input
-              v-model="form.title"
-              class="input"
+              id="post-title"
+              v-model.trim="form.title"
+              class="input title-input"
+              type="text"
+              name="title"
               maxlength="150"
+              autocomplete="off"
               placeholder="제목을 입력하세요"
             />
           </div>
@@ -357,6 +364,13 @@ button.btn-primary:disabled {
   min-height: 300px;
   color: var(--muted);
   font-weight: 700;
+}
+
+.title-input {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+  user-select: text;
 }
 
 @media (max-width: 768px) {
