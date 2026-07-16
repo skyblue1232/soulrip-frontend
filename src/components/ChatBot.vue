@@ -118,8 +118,27 @@ async function send(text = input.value) {
           {{ message.content }}
         </div>
 
-        <div v-if="loading" class="bubble assistant">
-          {{ copy.loading }}
+        <div
+          v-if="loading"
+          class="bubble assistant loading-bubble"
+          role="status"
+          :aria-label="copy.loading"
+        >
+          <div class="loading-title">
+            <span>{{ copy.loading }}</span>
+
+            <div class="typing-dots" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+
+          <div class="skeleton-lines" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
         </div>
       </div>
 
@@ -128,6 +147,7 @@ async function send(text = input.value) {
           v-for="question in quickQuestions"
           :key="question"
           type="button"
+          :disabled="loading"
           @click="send(question)"
         >
           {{ question }}
@@ -319,7 +339,13 @@ async function send(text = input.value) {
 }
 
 .chat-form button {
-  width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   border: none;
   border-radius: 14px;
   color: white;
@@ -346,4 +372,105 @@ async function send(text = input.value) {
     height: 300px;
   }
 }
+.loading-bubble {
+  width: 78%;
+  min-height: 92px;
+}
+
+.loading-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.typing-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.typing-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.skeleton-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.skeleton-lines span {
+  position: relative;
+  display: block;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-alt);
+}
+
+.skeleton-lines span:nth-child(1) {
+  width: 95%;
+}
+
+.skeleton-lines span:nth-child(2) {
+  width: 82%;
+}
+
+.skeleton-lines span:nth-child(3) {
+  width: 60%;
+}
+
+.skeleton-lines span::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(65, 104, 247, 0.18) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+.quick-list button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@keyframes typing-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
 </style>
+
