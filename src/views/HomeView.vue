@@ -161,14 +161,25 @@ onMounted(async () => {
       festivalResult,
       postResult,
     ] = await Promise.all([
-      api.getPlaces(),
-      api.getFestivals(),
-      api.getPosts({ size: 4 }),
+      api.getPlaces({
+        page: 1,
+        size: 6,
+      }),
+
+      api.getFestivals({
+        page: 1,
+        size: 3,
+      }),
+
+      api.getPosts({
+        page: 1,
+        size: 4,
+      }),
     ])
 
-    places.value = placeResult.items.slice(0, 6)
-    festivals.value = festivalResult.items.slice(0, 3)
-    posts.value = postResult.items.slice(0, 4)
+    places.value = placeResult.items
+    festivals.value = festivalResult.items
+    posts.value = postResult.items
   } finally {
     loading.value = false
   }
