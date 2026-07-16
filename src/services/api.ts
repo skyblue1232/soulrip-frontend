@@ -9,6 +9,7 @@ import type {
   PostPayload,
   PostType,
   TodayInsightResponse,
+  Comment,
 } from '@/types'
 
 const API_BASE_URL = (
@@ -26,9 +27,6 @@ type ApiErrorResponse = {
   message?: string
 }
 
-/**
- * FastAPI 오류 응답을 사용자가 읽을 수 있는 문자열로 변환
- */
 function getErrorMessage(error: ApiErrorResponse): string {
   if (typeof error.detail === 'string') {
     return error.detail
@@ -280,6 +278,25 @@ export const api = {
         }),
       },
     )
+  },
+
+  // 댓글 
+  getComments(postId: number) {
+    return request<Comment[]>(`/posts/${postId}/comments`)
+  },
+
+  createComment(
+    postId: number,
+    data: {
+      nickname: string
+      password: string
+      content: string
+    },
+  ) {
+    return request<Comment>(`/posts/${postId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
   },
 
   // 챗봇
