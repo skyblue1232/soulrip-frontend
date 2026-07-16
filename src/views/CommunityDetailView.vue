@@ -37,6 +37,17 @@ const deleteError = ref('')
 const deleting = ref(false)
 const liked = ref(false)
 
+function getClientId() {
+  let clientId = localStorage.getItem('client_id')
+
+  if (!clientId) {
+    clientId = crypto.randomUUID()
+    localStorage.setItem('client_id', clientId)
+  }
+
+  return clientId
+}
+
 const typeInfo = computed(() => {
   if (!post.value) return null
 
@@ -64,7 +75,11 @@ const typeInfo = computed(() => {
 })
 
 async function loadPost() {
-  post.value = await api.getPost(Number(route.params.id))
+  const postId = Number(route.params.id)
+  const clientId = getClientId()
+
+  post.value = await api.getPost(postId)
+  liked.value = await api.getLikeStatus(postId, clientId)
 }
 
 async function loadComments() {
@@ -120,19 +135,15 @@ async function likePost() {
   if (!post.value || liked.value) return
 
   try {
-    let clientId = localStorage.getItem('client_id')
-
-    if (!clientId) {
-      clientId = crypto.randomUUID()
-      localStorage.setItem('client_id', clientId)
-    }
-
+    const clientId = getClientId()
     const result = await api.likePost(post.value.id, clientId)
 
     liked.value = result.liked
     post.value.likes = result.likesCount
   } catch (err) {
-    error.value = err instanceof Error ? err.message : '좋아요 처리에 실패했습니다.'
+    error.value = err instanceof Error
+      ? err.message
+      : '좋아요 처리에 실패했습니다.'
   }
 }
 

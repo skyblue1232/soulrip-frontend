@@ -280,6 +280,12 @@ export const api = {
     )
   },
 
+  getLikeStatus(postId: number, clientId: string) {
+    return request<{ liked: boolean }>(
+      `/posts/${postId}/likes/status?clientId=${encodeURIComponent(clientId)}`,
+    ).then((result) => result.liked)
+  },
+
   // 댓글 
   getComments(postId: number) {
     return request<Comment[]>(`/posts/${postId}/comments`)
