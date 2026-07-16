@@ -176,7 +176,7 @@ export const api = {
     }
 
     if (params.search?.trim()) {
-      query.set('search', params.search.trim())
+      query.set('q', params.search.trim())
     }
 
     if (params.page) {
@@ -184,7 +184,7 @@ export const api = {
     }
 
     if (params.size) {
-      query.set('size', String(params.size))
+      query.set('limit', String(params.size))
     }
 
     const queryString = query.toString()
@@ -261,7 +261,7 @@ export const api = {
       },
     )
   },
-  
+
   // 챗봇
   chat(
     message: string,

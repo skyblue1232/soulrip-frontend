@@ -14,7 +14,15 @@ const submitting = ref(false)
 const error = ref('')
 const tagsInput = ref('')
 
-const initialType = route.query.type === 'COMPANION' ? 'COMPANION' : 'FOOD'
+const availableTypes = ['FOOD', 'REVIEW', 'COMPANION', 'GENERAL'] as const
+
+const queryType = String(route.query.type || '').toUpperCase()
+
+const initialType = availableTypes.includes(
+  queryType as (typeof availableTypes)[number],
+)
+  ? queryType as (typeof availableTypes)[number]
+  : 'FOOD'
 
 const form = reactive<PostPayload>({
   type: initialType,
@@ -47,6 +55,11 @@ const typeOptions = [
     value: 'COMPANION',
     label: '축제·관광지 동행 모집',
     icon: UsersRound,
+  },
+  {
+    value: 'GENERAL',
+    label: '자유 이야기',
+    icon: MessageCircle,
   },
 ]
 
