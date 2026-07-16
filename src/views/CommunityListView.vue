@@ -91,11 +91,13 @@ async function loadPosts() {
   }
 }
 
-function selectType(type: PostType) {
+async function selectType(type: PostType) {
   if (postType.value === type) return
 
   postType.value = type
   currentPage.value = 1
+
+  await loadPosts()
 }
 
 function movePage(page: number) {
