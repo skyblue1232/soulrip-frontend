@@ -139,15 +139,35 @@ export const api = {
   },
 
   // 축제 목록
-  async getFestivals(month?: number | null) {
-    const query = month
-      ? `?month=${encodeURIComponent(String(month))}`
-      : ''
+  async getFestivals(
+    params: {
+      month?: number | null
+      page?: number
+      size?: number
+    } = {},
+  ) {
+    const query = new URLSearchParams()
+
+    if (params.month) {
+      query.set('month', String(params.month))
+    }
+
+    if (params.page) {
+      query.set('page', String(params.page))
+    }
+
+    if (params.size) {
+      query.set('size', String(params.size))
+    }
+
+    const queryString = query.toString()
 
     return request<{
       items: Festival[]
       meta: PaginationMeta
-    }>(`/festivals${query}`)
+    }>(
+      `/festivals${queryString ? `?${queryString}` : ''}`,
+    )
   },
 
   // 축제 상세

@@ -1,9 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { CalendarDays, MapPin, PartyPopper } from 'lucide-vue-next'
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  PartyPopper,
+} from 'lucide-vue-next'
+
+import type {
+  Festival,
+  PaginationMeta,
+} from '@/types'
 import FestivalCard from '@/components/FestivalCard.vue'
 import { api } from '@/services/api'
-import type { Festival } from '@/types'
 
 interface CalendarDay {
   key: string
@@ -17,6 +27,15 @@ const today = new Date()
 const festivals = ref<Festival[]>([])
 const month = ref<number | null>(today.getMonth() + 1)
 const loading = ref(false)
+const currentPage = ref(1)
+const pageSize = 12
+
+const meta = ref<PaginationMeta>({
+  total: 0,
+  page: 1,
+  size: pageSize,
+  pages: 1,
+})
 
 const selectedDate = ref(
   createDateKey(
@@ -102,8 +121,15 @@ async function loadFestivals() {
   loading.value = true
 
   try {
-    const result = await api.getFestivals(month.value)
+    const result = await api.getFestivals({
+      month: month.value,
+      page: currentPage.value,
+      size: pageSize,
+    })
+
     festivals.value = result.items
+    meta.value = result.meta
+
     setInitialSelectedDate()
   } finally {
     loading.value = false
@@ -145,11 +171,62 @@ function setInitialSelectedDate() {
 }
 
 function selectMonth(value: number | null) {
+  if (month.value === value) return
+
+  currentPage.value = 1
   month.value = value
 }
 
 function selectDate(value: string) {
   selectedDate.value = value
+}
+
+function movePage(page: number) {
+  if (
+    page < 1 ||
+    page > meta.value.pages ||
+    page === currentPage.value
+  ) {
+    return
+  }
+
+  currentPage.value = page
+  loadFestivals()
+
+  document
+    .querySelector('.festival-list-section')
+    ?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+}
+
+function getPageNumbers() {
+  const totalPages = meta.value.pages
+  const current = currentPage.value
+  const maxVisible = 5
+
+  let start = Math.max(
+    1,
+    current - Math.floor(maxVisible / 2),
+  )
+
+  let end = Math.min(
+    totalPages,
+    start + maxVisible - 1,
+  )
+
+  if (end - start + 1 < maxVisible) {
+    start = Math.max(
+      1,
+      end - maxVisible + 1,
+    )
+  }
+
+  return Array.from(
+    { length: end - start + 1 },
+    (_, index) => start + index,
+  )
 }
 
 function createDateKey(year: number, month: number, day: number) {
@@ -366,7 +443,7 @@ onMounted(loadFestivals)
           </div>
 
           <span class="festival-total">
-            총 {{ festivals.length }}개
+            총 {{ meta.total }}개
           </span>
         </div>
 
@@ -374,9 +451,52 @@ onMounted(loadFestivals)
           <div v-for="i in 6" :key="i" class="skeleton" />
         </div>
 
-        <div v-else-if="festivals.length" class="grid festival-grid">
-          <FestivalCard v-for="festival in festivals" :key="festival.id" :festival="festival" />
-        </div>
+        <template v-else-if="festivals.length">
+          <div class="grid festival-grid">
+            <FestivalCard
+              v-for="festival in festivals"
+              :key="festival.id"
+              :festival="festival"
+            />
+          </div>
+
+          <nav
+            v-if="meta.pages > 1"
+            class="pagination"
+            aria-label="축제 페이지 이동"
+          >
+            <button
+              class="page-button page-arrow"
+              type="button"
+              :disabled="currentPage <= 1"
+              aria-label="이전 페이지"
+              @click="movePage(currentPage - 1)"
+            >
+              <ChevronLeft :size="18" />
+            </button>
+
+            <button
+              v-for="pageNumber in getPageNumbers()"
+              :key="pageNumber"
+              class="page-button"
+              :class="{ active: currentPage === pageNumber }"
+              type="button"
+              @click="movePage(pageNumber)"
+            >
+              {{ pageNumber }}
+            </button>
+
+            <button
+              class="page-button page-arrow"
+              type="button"
+              :disabled="currentPage >= meta.pages"
+              aria-label="다음 페이지"
+              @click="movePage(currentPage + 1)"
+            >
+              <ChevronRight :size="18" />
+            </button>
+          </nav>
+        </template>
 
         <div v-else class="empty-state card">
           선택한 월의 축제 정보가 없습니다.
@@ -718,6 +838,53 @@ onMounted(loadFestivals)
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.page-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid #e3e8f5;
+  border-radius: 12px;
+  color: #667085;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.page-button:hover:not(:disabled):not(.active) {
+  color: var(--primary);
+  border-color: #b9c7ff;
+  background: #f7f8ff;
+}
+
+.page-button.active {
+  color: #fff;
+  border-color: var(--primary);
+  background: var(--primary);
+  box-shadow: 0 8px 18px rgba(65, 104, 247, 0.22);
+}
+
+.page-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.page-arrow {
+  padding: 0;
 }
 
 @media (max-width: 900px) {
